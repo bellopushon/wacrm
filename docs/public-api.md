@@ -4,10 +4,10 @@ The public API lets you drive your wacrm instance from your own
 scripts and automations — send messages, manage contacts, launch
 broadcasts — without going through the dashboard UI.
 
-> **Status:** groundwork release. Authentication, scopes, rate
-> limiting, and the `GET /api/v1/me` probe ship now. The data
-> endpoints (`messages`, `contacts`, …) land one at a time in
-> follow-up releases — see [Roadmap](#roadmap).
+> **Status:** building out. Authentication, scopes, rate limiting,
+> the `GET /api/v1/me` probe, and **`POST /api/v1/messages`** ship
+> now. The remaining data endpoints (`contacts`, `conversations`,
+> `broadcasts`, …) land one at a time — see [Roadmap](#roadmap).
 
 ## Authentication
 
@@ -115,13 +115,60 @@ curl https://your-crm.example.com/api/v1/me \
 }
 ```
 
+### `POST /api/v1/messages`
+
+Send a WhatsApp message to a phone number. Scope: **`messages:send`**.
+
+You send a **phone number**, not an internal id — the API finds the
+matching contact (or creates one) and its conversation, then sends.
+
+**Body**
+
+| Field                 | Type             | Notes                                                        |
+| --------------------- | ---------------- | ------------------------------------------------------------ |
+| `to`                  | string, required | Recipient phone in E.164, e.g. `+14155550123`.               |
+| `type`                | string           | `text` (default), `template`, `image`, `video`, `document`, `audio`. |
+| `text`                | string           | Body for `text`; caption for media kinds (≤1024 chars).      |
+| `media_url`           | string           | Public URL. Required for `image`/`video`/`document`/`audio`. |
+| `filename`            | string           | Optional document filename shown to the recipient.           |
+| `template`            | object           | Required for `type=template`: `{ name, language, params }`. `params` as an **array** = positional body variables; as an **object** = structured header/body/button params. |
+| `reply_to_message_id` | string           | Optional. Must be a message in the same conversation.        |
+| `name`                | string           | Optional. Names the contact if this call creates it.         |
+
+> WhatsApp's 24-hour customer-service window applies: outside an open
+> window, only approved **templates** are delivered. Send a `template`
+> first to (re)open the window.
+
+**Example**
+
+```bash
+curl -X POST https://your-crm.example.com/api/v1/messages \
+  -H "Authorization: Bearer wacrm_live_xxx" \
+  -H "Content-Type: application/json" \
+  -d '{ "to": "+14155550123", "type": "text", "text": "Hi from the API 👋" }'
+```
+
+```json
+{
+  "data": {
+    "message_id": "…",
+    "whatsapp_message_id": "wamid.…",
+    "conversation_id": "…",
+    "contact_id": "…",
+    "contact_created": true
+  }
+}
+```
+
+Common errors: `bad_request` (bad `to`/params), `whatsapp_not_configured`
+(no WhatsApp connected), `meta_error` (Meta rejected the send, 502).
+
 ## Roadmap
 
 Planned endpoints, shipping one per release (tracked in
 [#245](https://github.com/ArnasDon/wacrm/issues/245)):
 
-- `POST /api/v1/messages` — send a message to a phone number
-  (`messages:send`)
+- ~~`POST /api/v1/messages` — send a message to a phone number~~ ✅ shipped
 - `GET/POST /api/v1/contacts`, `GET/PATCH /api/v1/contacts/{id}`
   (`contacts:read` / `contacts:write`)
 - `GET /api/v1/conversations` (`conversations:read`)

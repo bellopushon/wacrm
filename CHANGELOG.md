@@ -36,6 +36,12 @@ always did.
   (`messages`, `contacts`, …) follow one at a time. See
   `docs/public-api.md`. **Migration required:** apply
   `supabase/migrations/026_api_keys.sql`. ([#245](https://github.com/ArnasDon/wacrm/issues/245))
+- **Public API — `POST /api/v1/messages`.** The first data endpoint:
+  send a WhatsApp message (text, template, or media) to a phone number
+  with a `messages:send`-scoped key. You pass an E.164 number, not an
+  internal id — the API finds-or-creates the contact and conversation,
+  then sends through the same engine the dashboard uses. See
+  `docs/public-api.md`. ([#245](https://github.com/ArnasDon/wacrm/issues/245))
 
 ### Changed
 

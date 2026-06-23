@@ -87,6 +87,23 @@ export function ok<T>(data: T, status = 200): NextResponse {
 }
 
 /**
+ * Failure envelope from an explicit (code, message, status). Use for
+ * domain errors whose codes live outside `ApiErrorCode` (e.g. the
+ * send pipeline's `meta_error` / `whatsapp_not_configured`) — the
+ * wire `code` is a free string, so any machine-meaningful value is
+ * fine. `headers` is rarely needed; omit unless you have a
+ * `Retry-After`-style set.
+ */
+export function fail(
+  code: string,
+  message: string,
+  status: number,
+  headers?: Record<string, string>
+): NextResponse {
+  return NextResponse.json({ error: { code, message } }, { status, headers });
+}
+
+/**
  * Map any thrown value to the failure envelope. `ApiError` keeps its
  * code/status/headers; anything else collapses to a generic 500 so we
  * never leak internal error text onto the public wire.
