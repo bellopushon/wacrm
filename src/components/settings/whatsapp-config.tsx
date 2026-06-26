@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import {
   Eye,
@@ -53,6 +53,7 @@ export function WhatsAppConfig() {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('unknown');
   const [resetReason, setResetReason] = useState<ResetReason>(null);
   const [statusMessage, setStatusMessage] = useState<string>('');
+  const loadedAccountIdRef = useRef<string | null>(null);
 
   const [phoneNumberId, setPhoneNumberId] = useState('');
   const [wabaId, setWabaId] = useState('');
@@ -164,9 +165,12 @@ export function WhatsAppConfig() {
     // once the profile arrives.
     if (authLoading || profileLoading) return;
     if (!user || !accountId) {
+      loadedAccountIdRef.current = null;
       setLoading(false);
       return;
     }
+    if (loadedAccountIdRef.current === accountId) return;
+    loadedAccountIdRef.current = accountId;
     fetchConfig(accountId);
   }, [authLoading, profileLoading, user, accountId, fetchConfig]);
 
