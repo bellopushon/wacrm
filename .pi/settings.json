@@ -1,0 +1,30 @@
+{
+	"subagents": {
+		"agentOverrides": {
+			"context-builder": {
+				"model": "openai-codex/gpt-5.4"
+			},
+			"delegate": {
+				"model": "openai-codex/gpt-5.4"
+			},
+			"oracle": {
+				"model": "openai-codex/gpt-5.4"
+			},
+			"planner": {
+				"model": "openai-codex/gpt-5.4"
+			},
+			"researcher": {
+				"model": "openai-codex/gpt-5.4"
+			},
+			"reviewer": {
+				"model": "openai-codex/gpt-5.4"
+			},
+			"scout": {
+				"model": "openai-codex/gpt-5.4"
+			},
+			"worker": {
+				"model": "openai-codex/gpt-5.4"
+			}
+		}
+	}
+}
